@@ -21,15 +21,16 @@ Specify the following parameters:
 * AWS_SECRET_ACCESS_KEY
 * FROM_EMAIL - email from which emails are sent
 * FROM_NAME - the name of the sender
+* URL_PREFIX - url prefix (say, 'http://127.0.0.1:8000')
 * HASH_GET_PARAMETER (optional, 'mh' by default) - get parameter added to internal links inside emails to track clicks
 * USE_EMAIL_GA (optional, False by default)
 * EMAIL_GA_MEDUIM (optional, 'email' by default)
 
-Add 'services.middleware.FromEmailMiddleware' to MIDDLEWARE_CLASSES (positions doesn't matter).
+Add 'ses_analytics.middleware.FromEmailMiddleware' to MIDDLEWARE_CLASSES (position doesn't matter).
 
 Add 'ses_analytics' to INSTALLED_APPS.
 
-Add url(r'^', include('authentication.urls')) to urlpatterns.
+Add url(r'^', include('ses_analytics.urls')) to urlpatterns.
 
 Amazon SES configuration
 ========================
@@ -45,3 +46,5 @@ TODO
 * Automatically generate a text version of email from HTML version
 * Suggest metrics to investigate
 * Track opening external links
+* Provide a nice name for displaying in admin
+

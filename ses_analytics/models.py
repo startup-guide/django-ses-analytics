@@ -1,12 +1,10 @@
-from datetime import datetime
-
 from django.db import models
+from django.utils import timezone
 
 import boto
 from boto.ses import SESConnection
 
 from ses_analytics import settings
-#from users.models import Profile
 
 # TODO: model to manage subscription + settings for receiving letters
 
@@ -22,31 +20,32 @@ EMAIL_STATUSES = (
 # TODO: distinguish click time and open time
 # TODO: add multi-column indices
 class Email(models.Model):
-    recipient = models.ForeignKey(Profile, blank=True, null=True, default=None)
-    hash = models.CharField(max_length=30, db_index=True)
-    campaign = models.CharField(max_length=20, db_index=True)
-    raw_msg = models.TextField()
     from_email = models.EmailField(db_index=True)
     to_email = models.EmailField(db_index=True)
+    raw_msg = models.TextField()
+
+    hash = models.CharField(max_length=30, db_index=True)
+    campaign = models.CharField(max_length=20, db_index=True)
 
     time = models.DateTimeField(auto_now_add=True, db_index=True)
     status = models.CharField(max_length=9, choices=EMAIL_STATUSES, default='sending', db_index=True)
     is_read = models.BooleanField(default=False)
     read_time = models.DateTimeField(db_index=True, blank=True, null=True)
-    error = models.TextField()
+    error = models.TextField(blank=True)
 
     def update_status(self, status, error=''):
-        """ Update status (other than 'unsent') """
+        """ Update status (other than 'sending') """
         self.status = status
         self.error = error
         self.raw_msg = ''
         self.save()
 
     def mark_read(self):
-        self.read_time = datetime.now()
+        self.read_time = timezone.now()
         self.is_read = True
         self.save()
 
+    # TODO: Add signals to sending emails and receiving feedback
     def send(self):
         conn = boto.connect_ses(
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,

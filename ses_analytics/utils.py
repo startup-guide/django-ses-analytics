@@ -6,8 +6,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 
-from lxml.etree import tostring
-from lxml.html.soupparser import fromstring
+from bs4 import BeautifulSoup
 
 from ses_analytics.models import Email
 from ses_analytics import settings
@@ -15,13 +14,13 @@ from ses_analytics import settings
 # TODO: ability to attach files
 # TODO: check user's subscription settings? (some emails should be sent anyway)
 # TODO: not all tags are allowed in emails (e.g. avoid <p/>) - check and warn
-def send_email(recipient, subject, template, ctx, campaign='', from_email=settings.FROM_EMAIL,
-        from_name=settings.FROM_NAME, reply_to=None, to_email=None):
-    """ To send emails to admin account set recipient=None """
+def send_email(to_email, subject, template, ctx, campaign='',
+        from_email=settings.FROM_EMAIL, from_name=settings.FROM_NAME, reply_to=None):
     # TODO: generate unsubscribe link with hash (page with confirmation); default place for it in base template
-    context = {}
+    context = {
+        'URL_PREFIX': settings.URL_PREFIX,
+    }
     context.update(ctx)
-    context['recipient'] = recipient
     html = render_to_string(template, context)
 
     # TODO: convert html to text
@@ -29,22 +28,21 @@ def send_email(recipient, subject, template, ctx, campaign='', from_email=settin
     text = html
 
     # Generate a unique hash used to track email opening
-    name = str(recipient.user_id) if recipient else '' # TODO: fix it
-    hash = hashlib.md5(name+' '+str(datetime.now())).hexdigest()[:20]
+    hash = hashlib.md5(to_email+' '+str(datetime.now())).hexdigest()[:20]
 
     # GET parameters added to all internal urls
     data = {settings.HASH_GET_PARAMETER: hash}
 
-    if settings.USE_GA_CAMPAIGN and campaign:
+    if settings.USE_EMAIL_GA and campaign:
         data['utm_campaign'] = campaign
         data['utm_medium'] = settings.EMAIL_GA_MEDUIM
 
     params = urlencode(data)
 
     # Add tracking GET parameters to all internal urls
-    xml = fromstring(html)
-    for a in xml.findall('.//a'):
-        url = a.get('href')
+    xml = BeautifulSoup(html, 'lxml')
+    for a in xml.find_all('a'):
+        url = a.get('href', '')
         if url.startswith(settings.URL_PREFIX):
             # If hash is inside url - move it to the end of the newly generated link
             if '#' in url:
@@ -53,21 +51,20 @@ def send_email(recipient, subject, template, ctx, campaign='', from_email=settin
             else:
                 url += ('&' if '?' in url else '?') + params
 
-        a.set('href', url)
+        a['href'] = url
 
     # TODO: set redirects to track external links (optional - controlled by setting)
 
-    html = tostring(xml)
+    html = str(xml)
 
     # Include 1x1 image for tracking email opening
-    # TODO: fix URL_PREFIX
-    img_url = '{{ URL_PREFIX }}%s?%s=%s' % (reverse('img1x1'), settings.HASH_GET_PARAMETER, hash))
-    html += '<img src="%s" width="1" height="1" />' % img_url
+    if settings.EMAIL_OPEN_TRACKING:
+        html += '<img src="%s%s?%s=%s" width="1" height="1" />' % (
+                settings.URL_PREFIX, reverse('img1x1'),
+                settings.HASH_GET_PARAMETER, hash)
 
-    from_str = u'%s <%s>' % (from_email, from_name)
-    if to_email is None:
-        to_email = recipient.user.email if recipient else settings.ADMIN_EMAIL
-    # TODO: check that email has appropriate format (like no dot at the end)
+    from_str = u'%s <%s>' % (from_name, from_email)
+    # TODO: check that email has an appropriate format (like no dot at the end)
 
     headers = {}
     if reply_to:
@@ -79,11 +76,11 @@ def send_email(recipient, subject, template, ctx, campaign='', from_email=settin
 
     message = msg.message().as_string()
 
-    email = Email(recipient=recipient, hash=hash, campaign=campaign, raw_msg=message,
+    email = Email(hash=hash, campaign=campaign, raw_msg=message,
             from_email=from_email, to_email=to_email)
     email.save()
 
     email.send() # TODO: run it in celery (use select_related)
 
-# TODO: task which retrives bounce and spam report mails, extracts data, updates Email and unsubscribes user
+# TODO: process bounce and spam report SNS messages, update Email and unsubscribe user
 # TODO: take quota into account
