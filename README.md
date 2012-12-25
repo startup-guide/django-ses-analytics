@@ -25,6 +25,7 @@ Specify the following parameters:
 * HASH_GET_PARAMETER (optional, 'mh' by default) - get parameter added to internal links inside emails to track clicks
 * USE_EMAIL_GA (optional, False by default)
 * EMAIL_GA_MEDUIM (optional, 'email' by default)
+* EMAIL_OPEN_TRACKING (optional, True by default)
 
 Add 'ses_analytics.middleware.FromEmailMiddleware' to MIDDLEWARE_CLASSES (position doesn't matter).
 

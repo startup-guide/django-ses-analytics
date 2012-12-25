@@ -22,10 +22,10 @@ EMAIL_STATUSES = (
 class Email(models.Model):
     from_email = models.EmailField(db_index=True)
     to_email = models.EmailField(db_index=True)
-    raw_msg = models.TextField()
+    raw_msg = models.TextField(blank=True)
 
     hash = models.CharField(max_length=30, db_index=True)
-    campaign = models.CharField(max_length=20, db_index=True)
+    campaign = models.CharField(max_length=30, db_index=True, blank=True)
 
     time = models.DateTimeField(auto_now_add=True, db_index=True)
     status = models.CharField(max_length=9, choices=EMAIL_STATUSES, default='sending', db_index=True)

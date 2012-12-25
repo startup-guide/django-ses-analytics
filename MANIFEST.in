@@ -1,5 +1,4 @@
 include AUTHORS
 include LICENSE
 include README.md
-include ses_analytics/static/img/1x1.gif
 recursive-include ses_analytics/static *
