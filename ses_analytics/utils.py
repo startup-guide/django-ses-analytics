@@ -14,11 +14,13 @@ from ses_analytics import settings
 # TODO: ability to attach files
 # TODO: check user's subscription settings? (some emails should be sent anyway)
 # TODO: not all tags are allowed in emails (e.g. avoid <p/>) - check and warn
+# TODO: minify html before sending
 def send_email(to_email, subject, template, ctx, campaign='',
         from_email=settings.FROM_EMAIL, from_name=settings.FROM_NAME, reply_to=None):
     # TODO: generate unsubscribe link with hash (page with confirmation); default place for it in base template
     context = {
         'URL_PREFIX': settings.URL_PREFIX,
+        'STATIC_URL': settings.STATIC_URL,
     }
     context.update(ctx)
     html = render_to_string(template, context)

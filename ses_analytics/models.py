@@ -72,3 +72,6 @@ class Email(models.Model):
         # TODO: save message id?
         #response['SendRawEmailResponse']['SendRawEmailResult']['MessageId']
         #response['SendRawEmailResponse']['ResponseMetadata']['RequestId']
+
+    def __unicode__(self):
+        return "Email to %s" % self.to_email

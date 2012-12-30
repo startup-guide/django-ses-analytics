@@ -21,7 +21,8 @@ Specify the following parameters:
 * AWS_SECRET_ACCESS_KEY
 * FROM_EMAIL - email from which emails are sent
 * FROM_NAME - the name of the sender
-* URL_PREFIX - url prefix (say, 'http://127.0.0.1:8000')
+* URL_PREFIX - url prefix (e.g. 'http://127.0.0.1:8000')
+* STATIC_URL - statis files folder relative url (e.g. '/static/')
 * HASH_GET_PARAMETER (optional, 'mh' by default) - get parameter added to internal links inside emails to track clicks
 * USE_EMAIL_GA (optional, False by default)
 * EMAIL_GA_MEDUIM (optional, 'email' by default)

@@ -2,7 +2,7 @@ from django.conf import settings
 
 # Make sure that all mandatory settings are defined
 mandatory_settings = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'FROM_EMAIL',
-        'FROM_NAME', 'URL_PREFIX']
+        'FROM_NAME', 'URL_PREFIX', 'STATIC_URL']
 for setting in mandatory_settings:
     if not hasattr(settings, setting):
         raise ValueError('Please define %s variable in django settings' % setting)
