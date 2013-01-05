@@ -11,6 +11,8 @@ from bs4 import BeautifulSoup
 from ses_analytics.models import Email
 from ses_analytics import settings
 
+__all__ = ('send_email',)
+
 # TODO: ability to attach files
 # TODO: check user's subscription settings? (some emails should be sent anyway)
 # TODO: not all tags are allowed in emails (e.g. avoid <p/>) - check and warn

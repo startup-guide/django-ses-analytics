@@ -6,6 +6,8 @@ from boto.ses import SESConnection
 
 from ses_analytics import settings
 
+__all__ = ('EMAIL_STATUSES', 'Email')
+
 # TODO: model to manage subscription + settings for receiving letters
 
 # TODO: add retry status (if quota was exceeded)
