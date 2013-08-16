@@ -19,7 +19,7 @@ Configuration
 Specify the following parameters:
 * AWS_ACCESS_KEY_ID
 * AWS_SECRET_ACCESS_KEY
-* FROM_EMAIL - email from which emails are sent
+* DEFAULT_FROM_EMAIL - email from which emails are sent
 * FROM_NAME - the name of the sender
 * URL_PREFIX - url prefix (e.g. 'http://127.0.0.1:8000')
 * STATIC_URL - statis files folder relative url (e.g. '/static/')
@@ -44,9 +44,10 @@ TODO
 ====
 
 * Unsubscribe
-* Process bounces and spam complaints (see http://bouncely.com/), use SNS
+* Process bounces and spam complaints (see http://bouncely.com/), use SNS, automatically unsubscribe, distinguish soft and hard bounces
 * Automatically generate a text version of email from HTML version
 * Suggest metrics to investigate
 * Track opening external links
 * Provide a nice name for displaying in admin
-
+* Measure email activity - how often read emails or clicks links
+* Detect separatelly when images were displayed

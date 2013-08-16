@@ -1,10 +1,10 @@
-from datetime import datetime
 import hashlib
 from urllib import urlencode
 
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
+from django.utils import timezone
 
 from bs4 import BeautifulSoup
 
@@ -18,7 +18,8 @@ __all__ = ('send_email',)
 # TODO: not all tags are allowed in emails (e.g. avoid <p/>) - check and warn
 # TODO: minify html before sending
 def send_email(to_email, subject, template, ctx, campaign='',
-        from_email=settings.FROM_EMAIL, from_name=settings.FROM_NAME, reply_to=None):
+               from_email=settings.DEFAULT_FROM_EMAIL, from_name=settings.FROM_NAME,
+               reply_to=settings.DEFAULT_FROM_EMAIL):
     # TODO: generate unsubscribe link with hash (page with confirmation); default place for it in base template
     context = {
         'URL_PREFIX': settings.URL_PREFIX,
@@ -32,7 +33,7 @@ def send_email(to_email, subject, template, ctx, campaign='',
     text = html
 
     # Generate a unique hash used to track email opening
-    hash = hashlib.md5(to_email+' '+str(datetime.now())).hexdigest()[:20]
+    hash = hashlib.md5(to_email+' '+str(timezone.now())).hexdigest()[:20]
 
     # GET parameters added to all internal urls
     data = {settings.HASH_GET_PARAMETER: hash}
@@ -76,12 +77,12 @@ def send_email(to_email, subject, template, ctx, campaign='',
 
     # Generate email message with html and text
     msg = EmailMultiAlternatives(subject, text, from_str, [to_email], headers=headers)
-    msg.attach_alternative(html, "text/html")
+    msg.attach_alternative(html, 'text/html')
 
     message = msg.message().as_string()
 
     email = Email(hash=hash, campaign=campaign, raw_msg=message,
-            from_email=from_email, to_email=to_email)
+                  from_email=from_email, to_email=to_email)
     email.save()
 
     email.send() # TODO: run it in celery (use select_related)

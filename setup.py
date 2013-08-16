@@ -15,10 +15,10 @@ setup(
     description='Send emails and collect analytics in Django with Amazon SES',
     long_description=open('README.md').read(),
     install_requires=[
-        #'django>=1.5',
-        'lxml>=3.0.2',
-        'beautifulsoup4>=4.1.3',
-        'boto>=2.6.0',
+        'django>=1.5',
+        'lxml>=3.2.3',
+        'beautifulsoup4>=4.3.1',
+        'boto>=2.10.0',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
