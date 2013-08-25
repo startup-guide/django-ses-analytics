@@ -18,8 +18,7 @@ __all__ = ('send_email',)
 # TODO: not all tags are allowed in emails (e.g. avoid <p/>) - check and warn
 # TODO: minify html before sending
 def send_email(to_email, subject, template, ctx, campaign='',
-               from_email=settings.DEFAULT_FROM_EMAIL, from_name=settings.FROM_NAME,
-               reply_to=settings.DEFAULT_FROM_EMAIL):
+               from_email=settings.DEFAULT_FROM_EMAIL, reply_to=settings.DEFAULT_FROM_EMAIL):
     # TODO: generate unsubscribe link with hash (page with confirmation); default place for it in base template
     context = {
         'URL_PREFIX': settings.URL_PREFIX,
@@ -60,6 +59,7 @@ def send_email(to_email, subject, template, ctx, campaign='',
 
     # TODO: set redirects to track external links (optional - controlled by setting)
 
+    # TODO: remove <html> and <body> tags
     html = str(xml)
 
     # Include 1x1 image for tracking email opening
@@ -68,7 +68,7 @@ def send_email(to_email, subject, template, ctx, campaign='',
                 settings.URL_PREFIX, reverse('img1x1'),
                 settings.HASH_GET_PARAMETER, hash)
 
-    from_str = u'%s <%s>' % (from_name, from_email)
+    #from_str = u'%s <%s>' % (from_name, from_email)
     # TODO: check that email has an appropriate format (like no dot at the end)
 
     headers = {}
@@ -76,7 +76,7 @@ def send_email(to_email, subject, template, ctx, campaign='',
         headers['Reply-To'] = reply_to
 
     # Generate email message with html and text
-    msg = EmailMultiAlternatives(subject, text, from_str, [to_email], headers=headers)
+    msg = EmailMultiAlternatives(subject, text, from_email, [to_email], headers=headers)
     msg.attach_alternative(html, 'text/html')
 
     message = msg.message().as_string()
